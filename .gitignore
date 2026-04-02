@@ -1,0 +1,65 @@
+############################
+# OS
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# Logs
+############################
+*.log
+logs/
+
+############################
+# ENV FILES (IMPORTANT)
+############################
+.env
+.env.*
+frontend/.env
+backend/.env
+
+############################
+# NODE / FRONTEND
+############################
+node_modules/
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.cache/
+
+############################
+# PYTHON / BACKEND
+############################
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# virtual environments
+.venv/
+venv/
+env/
+
+############################
+# IDE / EDITOR
+############################
+.vscode/
+.idea/
+
+############################
+# UPLOADS (LOCAL STORAGE)
+############################
+backend/uploads/
+
+############################
+# TEST / TEMP FILES
+############################
+*.tmp
+*.bak
+*.swp
+
+############################
+# SYSTEM / CACHE
+############################
+.cache/

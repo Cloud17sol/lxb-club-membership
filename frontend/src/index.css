@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #050505;
+  color: #FFFFFF;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.bebas {
+  font-family: 'Bebas Neue', cursive;
+}
+
+@layer base {
+  :root {
+    --background: #050505;
+    --foreground: #FFFFFF;
+    --card: #0F0F12;
+    --card-foreground: #FFFFFF;
+    --popover: #0F0F12;
+    --popover-foreground: #FFFFFF;
+    --primary: #FF5722;
+    --primary-foreground: #FFFFFF;
+    --secondary: #1A1A20;
+    --secondary-foreground: #FFFFFF;
+    --muted: #1A1A20;
+    --muted-foreground: #A0A0AB;
+    --accent: #FF5722;
+    --accent-foreground: #FFFFFF;
+    --destructive: #F44336;
+    --destructive-foreground: #FFFFFF;
+    --border: rgba(255, 255, 255, 0.08);
+    --input: rgba(255, 255, 255, 0.1);
+    --ring: #FF5722;
+    --radius: 0.125rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
