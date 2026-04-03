@@ -271,6 +271,11 @@ class AdminStats(BaseModel):
     unpaid_members: int
     total_collected_this_month: float
 
+
+class AdminMemberPasswordResetResponse(BaseModel):
+    message: str
+    temporary_password: str
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -963,6 +968,35 @@ async def update_member_details(user_id: str, update_data: ProfileUpdate, admin_
     profile = await db.profiles.find_one({"user_id": user_id}, {"_id": 0})
     profile["role"] = user["role"]
     return profile
+
+
+@api_router.post("/admin/members/{user_id}/reset-password", response_model=AdminMemberPasswordResetResponse)
+async def admin_reset_member_password(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Set a member's password to the configured default (for forgotten-password support). Admin-only."""
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.get("role") == "admin":
+        raise HTTPException(status_code=400, detail="Cannot reset password for administrator accounts")
+    if user_id == admin_user["id"]:
+        raise HTTPException(status_code=400, detail="Use account settings to change your own password")
+
+    default_pw = os.environ.get("DEFAULT_MEMBER_PASSWORD", "LXBmember1!")
+    if len(default_pw) < 8:
+        raise HTTPException(
+            status_code=500,
+            detail="Server misconfiguration: DEFAULT_MEMBER_PASSWORD must be at least 8 characters",
+        )
+
+    hashed = hash_password(default_pw)
+    await db.users.update_one({"id": user_id}, {"$set": {"password": hashed}})
+    logger.info("Admin %s reset password for member %s", admin_user.get("email"), user_id)
+
+    return AdminMemberPasswordResetResponse(
+        message="Password reset. Share the temporary password with the member securely.",
+        temporary_password=default_pw,
+    )
+
 
 @api_router.get("/admin/payments")
 async def get_all_payments(
