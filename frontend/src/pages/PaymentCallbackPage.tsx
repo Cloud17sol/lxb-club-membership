@@ -9,17 +9,15 @@ import { API_URL } from '../apiConfig';
 
 const PaymentCallbackPage = () => {
   const [searchParams] = useSearchParams();
-  const { token } = useAuth();
+  const { token, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
   const [message, setMessage] = useState('Verifying your payment...');
 
-  useEffect(() => {
-    verifyPayment();
-  }, []);
+  const reference = searchParams.get('reference') || searchParams.get('trxref') || '';
 
-  const verifyPayment = async () => {
-    const reference = searchParams.get('reference') || searchParams.get('trxref');
+  useEffect(() => {
+    if (authLoading) return;
 
     if (!reference) {
       setStatus('failed');
@@ -27,23 +25,57 @@ const PaymentCallbackPage = () => {
       return;
     }
 
-    try {
-      const { data } = await axios.get(`${API_URL}/payment/verify/${reference}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (data.status === 'success') {
-        setStatus('success');
-        setMessage('Payment verified successfully!');
-      } else {
-        setStatus('failed');
-        setMessage(data.message || 'Payment verification failed');
-      }
-    } catch (error) {
+    if (!token) {
       setStatus('failed');
-      setMessage('An error occurred during verification');
+      setMessage('Your session expired. Please sign in again, then open this page from your browser history or payment link if needed.');
+      return;
     }
-  };
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { data } = await axios.get(
+          `${API_URL}/payment/verify/${encodeURIComponent(reference)}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30000
+          }
+        );
+        if (cancelled) return;
+        if (data.status === 'success') {
+          setStatus('success');
+          setMessage('Payment verified successfully!');
+        } else {
+          setStatus('failed');
+          setMessage(data.message || 'Payment verification failed');
+        }
+      } catch (error) {
+        if (cancelled) return;
+        if (axios.isAxiosError(error)) {
+          const st = error.response?.status;
+          const detail = error.response?.data?.detail;
+          const detailStr = typeof detail === 'string' ? detail : '';
+          if (st === 403) {
+            setMessage('You can only verify payments made from your own account.');
+          } else if (st === 401) {
+            setMessage('Session expired. Please sign in again.');
+          } else if (detailStr) {
+            setMessage(detailStr);
+          } else {
+            setMessage('Could not verify payment. Please try again or contact support.');
+          }
+        } else {
+          setMessage('An error occurred during verification');
+        }
+        setStatus('failed');
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, token, reference]);
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6">
