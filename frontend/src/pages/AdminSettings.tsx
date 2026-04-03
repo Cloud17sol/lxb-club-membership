@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Shield, Eye, EyeOff, AlertTriangle, CheckCircle2, CreditCard, Lock } from 'lucide-react';
-import { API_URL, BACKEND_ORIGIN } from '@/apiConfig';
+import { API_URL, BACKEND_ORIGIN } from '../apiConfig';
 
 const AdminSettings = () => {
   const { token } = useAuth();

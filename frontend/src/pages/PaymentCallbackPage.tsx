@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { API_URL } from '@/apiConfig';
+import { API_URL } from '../apiConfig';
 
 const PaymentCallbackPage = () => {
   const [searchParams] = useSearchParams();

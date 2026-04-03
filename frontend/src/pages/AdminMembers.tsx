@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Trash2, Filter, Edit, User, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { format } from 'date-fns';
 import { buildFileUrl } from '@/utils/fileHelpers';
-import { API_URL } from '@/apiConfig';
+import { API_URL } from '../apiConfig';
 
 const AdminMembers = () => {
   const { token } = useAuth();
