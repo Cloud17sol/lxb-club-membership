@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Users, DollarSign, CheckCircle, XCircle, LogOut, Settings } from 'lucide-react';
+import { Users, DollarSign, CheckCircle, XCircle, LogOut, Settings, Megaphone } from 'lucide-react';
 import { API_URL } from '../apiConfig';
 
 const AdminDashboard = () => {
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Action cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <button
             onClick={() => navigate('/admin/members')}
             className="bg-[#0F0F12] border border-white/10 rounded-sm p-8 hover:border-white/20 transition-all text-left group"
@@ -129,6 +129,16 @@ const AdminDashboard = () => {
             <Settings size={48} className="text-[#FF5722] mb-4 group-hover:scale-110 transition-transform" />
             <h3 className="text-2xl font-black bebas uppercase tracking-tight text-white mb-2">Dues Settings</h3>
             <p className="text-[#A0A0AB] text-sm">Set and update monthly membership dues</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/admin/club-updates')}
+            className="bg-[#0F0F12] border border-white/10 rounded-sm p-8 hover:border-white/20 transition-all text-left group"
+            data-testid="club-updates-admin-button"
+          >
+            <Megaphone size={48} className="text-[#FF5722] mb-4 group-hover:scale-110 transition-transform" />
+            <h3 className="text-2xl font-black bebas uppercase tracking-tight text-white mb-2">Club Updates</h3>
+            <p className="text-[#A0A0AB] text-sm">Announcements and events on the member dashboard</p>
           </button>
         </div>
       </main>
