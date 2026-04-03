@@ -30,10 +30,17 @@ const ProfilePage = () => {
     confirm_password: ''
   });
   const [pwLoading, setPwLoading] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
+    setImageFailed(false);
     fetchProfile();
-  }, []);
+  }, [token]);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [profile?.profile_image_url]);
 
   const fetchProfile = async () => {
     try {
@@ -203,11 +210,12 @@ const ProfilePage = () => {
           <div className="mb-8 flex flex-col items-center">
             <div className="relative mb-4">
               <div className="w-32 h-32 rounded-sm overflow-hidden border-2 border-white/10 bg-[#1A1A20]">
-                {profile?.profile_image_url ? (
-                  <img 
+                {profile?.profile_image_url && !imageFailed ? (
+                  <img
                     src={buildFileUrl(profile.profile_image_url)}
-                    alt="Profile" 
+                    alt=""
                     className="w-full h-full object-cover"
+                    onError={() => setImageFailed(true)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
