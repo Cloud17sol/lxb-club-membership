@@ -7,6 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import json
 import logging
+import mimetypes
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
@@ -485,7 +486,7 @@ async def change_own_password(data: PasswordChangeRequest, current_user: dict = 
     return {"message": "Password updated successfully"}
 
 
-# Image upload endpoint
+# Image upload endpoint (files live under backend/uploads — use a persistent volume or object storage in production)
 @api_router.post("/upload/profile-image")
 async def upload_profile_image(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     # Validate file type
@@ -523,11 +524,18 @@ async def upload_profile_image(file: UploadFile = File(...), current_user: dict 
 # Serve uploaded files
 @api_router.get("/files/{path:path}")
 async def serve_file(path: str):
-    """Serve uploaded files from local disk - public access for images"""
+    """Serve uploaded files from local disk — public GET (no auth) for <img src>."""
     try:
         file_path = get_local_file(path)
-        return FileResponse(file_path)
-    except HTTPException:
+        media_type, _ = mimetypes.guess_type(str(file_path))
+        return FileResponse(
+            file_path,
+            media_type=media_type or "application/octet-stream",
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+    except HTTPException as e:
+        if e.status_code == 404:
+            logger.warning("File not found for path=%s", path)
         raise
     except Exception as e:
         logger.error(f"File serve failed for path {path}: {e}")
