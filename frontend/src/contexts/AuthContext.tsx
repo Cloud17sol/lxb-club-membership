@@ -60,10 +60,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password })
     });
 
-    const data = await response.json();
+    let data: any;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error('Invalid server response');
+    }
 
     if (!response.ok) {
-      throw new Error(data.detail || 'Login failed');
+      throw new Error(data?.detail || data?.message || 'Invalid username or password');
     }
 
     setUser(data.user);
@@ -78,10 +83,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(signupData)
     });
 
-    const data = await response.json();
+    let data: any;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error('Invalid server response');
+    }
 
     if (!response.ok) {
-      throw new Error(data.detail || 'Signup failed');
+      throw new Error(data?.detail || data?.message || 'Signup failed');
     }
 
     setUser(data.user);
