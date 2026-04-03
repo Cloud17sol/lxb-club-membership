@@ -15,6 +15,7 @@ import AdminMembers from '@/pages/AdminMembers';
 import AdminMemberEdit from '@/pages/AdminMemberEdit';
 import AdminPayments from '@/pages/AdminPayments';
 import AdminSettings from '@/pages/AdminSettings';
+import AdminClubUpdates from '@/pages/AdminClubUpdates';
 
 const ProtectedRoute = ({
   children,
@@ -83,6 +84,7 @@ function AppRoutes() {
       <Route path="/admin/members/:userId/edit" element={<ProtectedRoute adminOnly><AdminMemberEdit /></ProtectedRoute>} />
       <Route path="/admin/payments" element={<ProtectedRoute adminOnly><AdminPayments /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
+      <Route path="/admin/club-updates" element={<ProtectedRoute adminOnly><AdminClubUpdates /></ProtectedRoute>} />
       
       <Route path="/" element={<Navigate to="/login" replace />} />
     </Routes>
