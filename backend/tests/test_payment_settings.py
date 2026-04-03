@@ -301,6 +301,56 @@ class TestPaymentVerification:
         assert response.status_code == 404, f"Expected 404, got {response.status_code}: {response.text}"
         print("Invalid reference correctly returns 404")
 
+    def test_payment_verify_wrong_owner_forbidden(self, api_client):
+        """Member cannot verify another user's payment (IDOR protection)"""
+        ts = datetime.now().strftime('%H%M%S%f')
+        r1 = api_client.post(
+            f"{BASE_URL}/api/auth/signup",
+            json={
+                "email": f"pay_a_{ts}@lxb.com",
+                "password": "testpass123",
+                "full_name": "Pay Owner A",
+                "phone": "+2348011111111",
+                "date_of_birth": "1995-06-15",
+                "gender": "Male",
+                "address": "123 Test",
+                "player_position": "Guard",
+            },
+        )
+        r2 = api_client.post(
+            f"{BASE_URL}/api/auth/signup",
+            json={
+                "email": f"pay_b_{ts}@lxb.com",
+                "password": "testpass123",
+                "full_name": "Pay Owner B",
+                "phone": "+2348022222222",
+                "date_of_birth": "1995-06-15",
+                "gender": "Male",
+                "address": "456 Test",
+                "player_position": "Guard",
+            },
+        )
+        if r1.status_code != 200 or r2.status_code != 200:
+            pytest.skip("Could not create two test members")
+        token_a = r1.json()["access_token"]
+        token_b = r2.json()["access_token"]
+
+        init = api_client.post(
+            f"{BASE_URL}/api/payment/initialize",
+            headers={"Authorization": f"Bearer {token_a}"},
+            json={"callback_url": "https://example.com/callback", "include_physical_card": False},
+        )
+        if init.status_code != 200:
+            pytest.skip(f"Could not init payment: {init.text}")
+        reference = init.json()["reference"]
+
+        verify = api_client.get(
+            f"{BASE_URL}/api/payment/verify/{reference}",
+            headers={"Authorization": f"Bearer {token_b}"},
+        )
+        assert verify.status_code == 403, f"Expected 403, got {verify.status_code}: {verify.text}"
+        print("Cross-user payment verify correctly forbidden")
+
 
 class TestDuplicatePaymentPrevention:
     """Test duplicate payment prevention"""
