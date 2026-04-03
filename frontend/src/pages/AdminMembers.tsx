@@ -10,6 +10,35 @@ import { format } from 'date-fns';
 import { buildFileUrl } from '@/utils/fileHelpers';
 import { API_URL } from '../apiConfig';
 
+const MemberAvatar = ({ member }: { member: any }) => {
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  useEffect(() => {
+    setLoadFailed(false);
+  }, [member.profile_image_url]);
+
+  const src = member.profile_image_url ? buildFileUrl(member.profile_image_url) : '';
+
+  if (!src || loadFailed) {
+    return (
+      <div className="w-10 h-10 rounded-sm overflow-hidden border border-white/10 bg-[#1A1A20] flex items-center justify-center">
+        <User size={20} className="text-[#A0A0AB]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-10 h-10 rounded-sm overflow-hidden border border-white/10 bg-[#1A1A20]">
+      <img
+        src={src}
+        alt=""
+        className="w-full h-full object-cover"
+        onError={() => setLoadFailed(true)}
+      />
+    </div>
+  );
+};
+
 const AdminMembers = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -220,15 +249,7 @@ const AdminMembers = () => {
                 filteredMembers.map((member) => (
                   <TableRow key={member.id} className="border-white/5 hover:bg-white/5" data-testid="member-row">
                     <TableCell>
-                      <div className="w-10 h-10 rounded-sm overflow-hidden border border-white/10 bg-[#1A1A20]">
-                        {member.profile_image_url ? (
-                          <img src={buildFileUrl(member.profile_image_url)} alt={member.full_name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <User size={20} className="text-[#A0A0AB]" />
-                          </div>
-                        )}
-                      </div>
+                      <MemberAvatar member={member} />
                     </TableCell>
                     <TableCell className="text-white font-medium">{member.full_name}</TableCell>
                     <TableCell className="text-white font-mono text-sm">{member.membership_id}</TableCell>
