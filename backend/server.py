@@ -19,6 +19,8 @@ import httpx
 import hmac
 import hashlib
 import requests
+import cloudinary
+import cloudinary.uploader
 import io
 import csv
 from reportlab.lib import colors
@@ -44,17 +46,34 @@ def cloudinary_configured() -> bool:
 
 
 def configure_cloudinary():
-    """Call before upload when using separate key vars (CLOUDINARY_URL is auto-read by the SDK)."""
-    import cloudinary
-
+    """Configure Cloudinary once from env vars."""
     if os.environ.get("CLOUDINARY_URL"):
+        cloudinary.config(secure=True)
         return
+
     if os.environ.get("CLOUDINARY_CLOUD_NAME"):
         cloudinary.config(
             cloud_name=os.environ["CLOUDINARY_CLOUD_NAME"],
             api_key=os.environ.get("CLOUDINARY_API_KEY"),
             api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+            secure=True,
         )
+
+
+# Helper for uploading profile images to Cloudinary
+def upload_profile_image_to_cloudinary(data: bytes, user_id: str) -> str:
+    """Upload profile image to Cloudinary and return secure URL."""
+    try:
+        configure_cloudinary()
+        result = cloudinary.uploader.upload(
+            data,
+            folder=f"lxb/profiles/{user_id}",
+            resource_type="image",
+        )
+        return result["secure_url"]
+    except Exception as e:
+        logger.error(f"Cloudinary upload failed: {e}")
+        raise HTTPException(status_code=500, detail="Image upload failed")
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -542,31 +561,20 @@ async def upload_profile_image(file: UploadFile = File(...), current_user: dict 
     # Cloudinary: store full https URL in profile_image_url (frontend buildFileUrl passes through unchanged)
     if cloudinary_configured():
         try:
-            import cloudinary.uploader
-
-            configure_cloudinary()
-            result = cloudinary.uploader.upload(
-                io.BytesIO(data),
-                folder=f"lxb/profiles/{current_user['id']}",
-                public_id=uuid.uuid4().hex,
-                resource_type="image",
-                overwrite=True,
-            )
-            secure_url = result.get("secure_url")
-            if not secure_url:
-                raise HTTPException(status_code=502, detail="Cloudinary did not return a URL")
+            image_url = upload_profile_image_to_cloudinary(data, current_user["id"])
 
             await db.profiles.update_one(
                 {"user_id": current_user["id"]},
-                {"$set": {"profile_image_url": secure_url}},
+                {"$set": {"profile_image_url": image_url}},
             )
+
             logger.info("Profile image uploaded to Cloudinary for user %s", current_user["id"])
-            return {"url": secure_url, "path": secure_url, "size": len(data)}
+            return {"url": image_url, "path": image_url, "size": len(data)}
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Cloudinary upload failed: {e}")
-            raise HTTPException(status_code=502, detail="Image storage failed. Try again later.")
+            logger.error(f"Upload failed: {e}")
+            raise HTTPException(status_code=500, detail="Upload failed")
 
     relative_path = f"profiles/{current_user['id']}/{uuid.uuid4()}.{ext}"
 
