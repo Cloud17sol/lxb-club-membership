@@ -12,19 +12,21 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage('');
 
     try {
       await login(email, password);
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.message || 'Login failed');
+      setErrorMessage(error.message || 'Invalid username or password');
     } finally {
       setLoading(false);
     }
@@ -58,7 +60,10 @@ const LoginPage = () => {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errorMessage) setErrorMessage('');
+                }}
                 required
                 className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
                 placeholder="your@email.com"
@@ -72,12 +77,20 @@ const LoginPage = () => {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errorMessage) setErrorMessage('');
+                }}
                 required
                 className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
                 placeholder="••••••••"
                 data-testid="login-password-input"
               />
+              {errorMessage && (
+                <p className="mt-2 text-sm text-red-500">
+                  {errorMessage}
+                </p>
+              )}
             </div>
 
             <Button
