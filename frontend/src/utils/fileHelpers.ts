@@ -6,8 +6,13 @@ import { BACKEND_ORIGIN } from '../apiConfig';
  */
 export const buildFileUrl = (path?: string | null): string => {
   if (!path) return '';
-  if (path.startsWith('http')) return path;
+  let p = String(path).trim();
+  if (p.startsWith('http')) return p;
+  p = p.replace(/^\//, '');
+  // Some legacy rows may store "api/files/..." without host — avoid double prefix
+  if (p.startsWith('api/files/')) {
+    p = p.slice('api/files/'.length);
+  }
   const base = BACKEND_ORIGIN.replace(/\/$/, '');
-  const rel = path.replace(/^\//, '');
-  return `${base}/api/files/${rel}`;
+  return `${base}/api/files/${p}`;
 };
