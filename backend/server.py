@@ -321,6 +321,42 @@ class AdminMemberPasswordResetResponse(BaseModel):
     message: str
     temporary_password: str
 
+
+class ClubUpdateCreate(BaseModel):
+    kind: str = Field(..., description="announcement or event")
+    title: str = Field(..., min_length=1, max_length=200)
+    subtitle: str = Field(default="", max_length=300)
+    body: str = Field(default="", max_length=2000)
+    venue: str = Field(default="", max_length=300)
+    sort_order: int = 0
+    is_active: bool = True
+
+
+class ClubUpdateUpdate(BaseModel):
+    kind: Optional[str] = None
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
+    subtitle: Optional[str] = Field(default=None, max_length=300)
+    body: Optional[str] = Field(default=None, max_length=2000)
+    venue: Optional[str] = Field(default=None, max_length=300)
+    sort_order: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class ClubUpdatePublic(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    kind: str
+    title: str
+    subtitle: str = ""
+    body: str = ""
+    venue: str = ""
+
+
+class ClubUpdatesMemberResponse(BaseModel):
+    announcements: List[ClubUpdatePublic]
+    events: List[ClubUpdatePublic]
+
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -989,6 +1025,29 @@ async def get_membership_card(current_user: dict = Depends(get_current_user)):
         "profile_image_url": profile.get("profile_image_url")
     }
 
+
+@api_router.get("/club-updates", response_model=ClubUpdatesMemberResponse)
+async def get_club_updates_member(current_user: dict = Depends(get_current_user)):
+    """Active announcements and events for the member dashboard."""
+    announcements = (
+        await db.club_updates.find(
+            {"is_active": True, "kind": "announcement"},
+            {"_id": 0, "id": 1, "kind": 1, "title": 1, "subtitle": 1, "body": 1, "venue": 1},
+        )
+        .sort([("sort_order", 1), ("created_at", -1)])
+        .to_list(50)
+    )
+    events = (
+        await db.club_updates.find(
+            {"is_active": True, "kind": "event"},
+            {"_id": 0, "id": 1, "kind": 1, "title": 1, "subtitle": 1, "body": 1, "venue": 1},
+        )
+        .sort([("sort_order", 1), ("created_at", -1)])
+        .to_list(50)
+    )
+    return ClubUpdatesMemberResponse(announcements=announcements, events=events)
+
+
 # Admin endpoints
 @api_router.get("/admin/stats", response_model=AdminStats)
 async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
@@ -1134,6 +1193,68 @@ async def admin_reset_member_password(user_id: str, admin_user: dict = Depends(g
         message="Password reset. Share the temporary password with the member securely.",
         temporary_password=default_pw,
     )
+
+
+@api_router.get("/admin/club-updates")
+async def admin_list_club_updates(admin_user: dict = Depends(get_admin_user)):
+    items = (
+        await db.club_updates.find({}, {"_id": 0})
+        .sort([("kind", 1), ("sort_order", 1), ("created_at", -1)])
+        .to_list(500)
+    )
+    return items
+
+
+@api_router.post("/admin/club-updates")
+async def admin_create_club_update(
+    data: ClubUpdateCreate, admin_user: dict = Depends(get_admin_user)
+):
+    if data.kind not in ("announcement", "event"):
+        raise HTTPException(status_code=400, detail="kind must be 'announcement' or 'event'")
+    now = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "id": str(uuid.uuid4()),
+        "kind": data.kind,
+        "title": data.title.strip(),
+        "subtitle": (data.subtitle or "").strip(),
+        "body": (data.body or "").strip(),
+        "venue": (data.venue or "").strip(),
+        "sort_order": data.sort_order,
+        "is_active": data.is_active,
+        "created_at": now,
+        "updated_at": now,
+        "updated_by": admin_user.get("email", "admin"),
+    }
+    await db.club_updates.insert_one(doc)
+    return await db.club_updates.find_one({"id": doc["id"]}, {"_id": 0})
+
+
+@api_router.put("/admin/club-updates/{update_id}")
+async def admin_update_club_update(
+    update_id: str, data: ClubUpdateUpdate, admin_user: dict = Depends(get_admin_user)
+):
+    existing = await db.club_updates.find_one({"id": update_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Update not found")
+    patch = {k: v for k, v in data.model_dump().items() if v is not None}
+    if "kind" in patch and patch["kind"] not in ("announcement", "event"):
+        raise HTTPException(status_code=400, detail="kind must be 'announcement' or 'event'")
+    for text_key in ("title", "subtitle", "body", "venue"):
+        if text_key in patch and isinstance(patch[text_key], str):
+            patch[text_key] = patch[text_key].strip()
+    patch["updated_at"] = datetime.now(timezone.utc).isoformat()
+    patch["updated_by"] = admin_user.get("email", "admin")
+    await db.club_updates.update_one({"id": update_id}, {"$set": patch})
+    updated = await db.club_updates.find_one({"id": update_id}, {"_id": 0})
+    return updated
+
+
+@api_router.delete("/admin/club-updates/{update_id}")
+async def admin_delete_club_update(update_id: str, admin_user: dict = Depends(get_admin_user)):
+    result = await db.club_updates.delete_one({"id": update_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Update not found")
+    return {"message": "Deleted"}
 
 
 @api_router.get("/admin/payments")
