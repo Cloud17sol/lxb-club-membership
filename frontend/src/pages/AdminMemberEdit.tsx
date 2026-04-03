@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, User as UserIcon } from 'lucide-react';
+import { ArrowLeft, Save, User as UserIcon, KeyRound } from 'lucide-react';
 import { buildFileUrl } from '@/utils/fileHelpers';
 import { API_URL } from '../apiConfig';
 
@@ -16,6 +16,7 @@ const AdminMemberEdit = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -81,6 +82,45 @@ const AdminMemberEdit = () => {
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleResetPassword = async () => {
+    if (
+      !window.confirm(
+        "Reset this member's password to the club default? They must use the new temporary password to sign in."
+      )
+    ) {
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/admin/members/${userId}/reset-password`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const d = data.detail;
+        const msg =
+          typeof d === 'string'
+            ? d
+            : Array.isArray(d) && d[0]?.msg
+              ? d[0].msg
+              : 'Failed to reset password';
+        throw new Error(msg);
+      }
+      toast.success('Password reset', {
+        description: `Temporary password: ${data.temporary_password}`,
+        duration: 60000
+      });
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset password');
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -191,6 +231,31 @@ const AdminMemberEdit = () => {
                   data-testid="member-address-input"
                 />
               </div>
+            </div>
+
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <p className="text-[#A0A0AB] text-sm">
+                If this member forgot their password, reset it to the club default. Share the temporary password with them
+                securely (in person or phone). You can change the default on the server with{' '}
+                <code className="text-white/90 bg-white/5 px-1 rounded text-xs">DEFAULT_MEMBER_PASSWORD</code>.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={resetLoading || !profile || profile?.role === 'admin'}
+                onClick={handleResetPassword}
+                className="w-full border-white/20 text-white hover:bg-white/5 hover:text-white rounded-sm"
+                data-testid="reset-member-password-button"
+              >
+                {resetLoading ? (
+                  'Resetting…'
+                ) : (
+                  <>
+                    <KeyRound size={18} className="mr-2" />
+                    Reset password to default
+                  </>
+                )}
+              </Button>
             </div>
 
             <Button
