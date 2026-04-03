@@ -359,6 +359,9 @@ const handlePayDues = async () => {
                 <p className="text-[#A0A0AB] text-sm">Payment gateway is running in demo mode. Contact an admin to configure Paystack keys.</p>
               </div>
             )}
+            <p className="text-[#A0A0AB] text-xs text-center">
+              Monthly dues are paid manually each month
+            </p>
             <Button
               onClick={handlePayDues}
               disabled={paymentLoading || !dues || hasActiveMembership}
