@@ -401,6 +401,80 @@ const handlePayDues = async () => {
                 </div>
               </div>
             )}
+
+            <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-6" data-testid="club-updates-section">
+              <h3 className="text-lg font-black bebas uppercase tracking-tight text-white mb-4">
+                Club Updates
+              </h3>
+
+              <div className="mb-6">
+                <p className="text-[#A0A0AB] text-xs uppercase tracking-[0.2em] mb-3">
+                  Announcements
+                </p>
+
+                <div className="space-y-3">
+                  <div className="border-b border-white/5 pb-3 last:border-0">
+                    <div className="text-white text-sm font-medium">
+                      Training this Saturday
+                    </div>
+                    <div className="text-[#A0A0AB] text-xs mt-1">
+                      8:00 AM • National Stadium
+                    </div>
+                    <div className="text-[#A0A0AB] text-xs mt-2">
+                      All members should come with jerseys and water bottles.
+                    </div>
+                  </div>
+
+                  <div className="border-b border-white/5 pb-3 last:border-0">
+                    <div className="text-white text-sm font-medium">
+                      Membership Renewal Reminder
+                    </div>
+                    <div className="text-[#A0A0AB] text-xs mt-1">
+                      Deadline • Apr 30, 2026
+                    </div>
+                    <div className="text-[#A0A0AB] text-xs mt-2">
+                      Please complete your monthly dues before the end of the month.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[#A0A0AB] text-xs uppercase tracking-[0.2em] mb-3">
+                  Upcoming Events
+                </p>
+
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between border-b border-white/5 pb-3 last:border-0">
+                    <div>
+                      <div className="text-white text-sm font-medium">
+                        Friendly Match
+                      </div>
+                      <div className="text-[#A0A0AB] text-xs mt-1">
+                        Apr 12, 2026 • 4:00 PM
+                      </div>
+                      <div className="text-[#FF5722] text-xs mt-2">
+                        Teslim Balogun Stadium
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start justify-between border-b border-white/5 pb-3 last:border-0">
+                    <div>
+                      <div className="text-white text-sm font-medium">
+                        Team Practice
+                      </div>
+                      <div className="text-[#A0A0AB] text-xs mt-1">
+                        Apr 14, 2026 • 7:00 AM
+                      </div>
+                      <div className="text-[#FF5722] text-xs mt-2">
+                        Indoor Sports Hall
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
