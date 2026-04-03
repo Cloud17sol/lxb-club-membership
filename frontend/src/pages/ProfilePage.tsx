@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Upload, Camera } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Camera, Lock } from 'lucide-react';
 import { buildFileUrl } from '@/utils/fileHelpers';
 import { API_URL } from '../apiConfig';
 
@@ -24,6 +24,12 @@ const ProfilePage = () => {
     address: '',
     player_position: ''
   });
+  const [pwData, setPwData] = useState({
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  });
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -129,6 +135,50 @@ const ProfilePage = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwData.new_password !== pwData.confirm_password) {
+      toast.error('New password and confirmation do not match');
+      return;
+    }
+    if (pwData.new_password.length < 8) {
+      toast.error('New password must be at least 8 characters');
+      return;
+    }
+    setPwLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/profile/change-password`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          current_password: pwData.current_password,
+          new_password: pwData.new_password,
+          confirm_password: pwData.confirm_password
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const d = data.detail;
+        const msg =
+          typeof d === 'string'
+            ? d
+            : Array.isArray(d) && d[0]?.msg
+              ? d[0].msg
+              : 'Failed to update password';
+        throw new Error(msg);
+      }
+      toast.success('Password updated successfully');
+      setPwData({ current_password: '', new_password: '', confirm_password: '' });
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update password');
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#050505]">
       <header className="bg-[#050505] border-b border-white/5">
@@ -186,6 +236,71 @@ const ProfilePage = () => {
               <div className="text-[#A0A0AB] text-xs uppercase tracking-[0.2em] mb-1">Membership ID</div>
               <div className="text-white text-xl font-black bebas">{profile.membership_id}</div>
             </div>
+          )}
+
+          {profile && (
+            <form onSubmit={handlePasswordSubmit} className="mb-8 p-5 rounded-sm border border-[#FF5722]/30 bg-[#FF5722]/5 space-y-4">
+              <h2 className="text-white font-bold text-sm uppercase tracking-wide flex items-center gap-2">
+                <Lock size={18} className="text-[#FF5722]" />
+                Change password
+              </h2>
+              <p className="text-[#A0A0AB] text-sm">
+                If an admin reset your password, sign in with the temporary password, then set a new one here. Minimum 8
+                characters.
+              </p>
+              <div>
+                <Label htmlFor="current_password" className="text-white text-sm font-medium">
+                  Current password
+                </Label>
+                <Input
+                  id="current_password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={pwData.current_password}
+                  onChange={(e) => setPwData((p) => ({ ...p, current_password: e.target.value }))}
+                  className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
+                  data-testid="profile-current-password-input"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="new_password" className="text-white text-sm font-medium">
+                    New password
+                  </Label>
+                  <Input
+                    id="new_password"
+                    type="password"
+                    autoComplete="new-password"
+                    value={pwData.new_password}
+                    onChange={(e) => setPwData((p) => ({ ...p, new_password: e.target.value }))}
+                    className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
+                    data-testid="profile-new-password-input"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirm_password" className="text-white text-sm font-medium">
+                    Confirm new password
+                  </Label>
+                  <Input
+                    id="confirm_password"
+                    type="password"
+                    autoComplete="new-password"
+                    value={pwData.confirm_password}
+                    onChange={(e) => setPwData((p) => ({ ...p, confirm_password: e.target.value }))}
+                    className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
+                    data-testid="profile-confirm-password-input"
+                  />
+                </div>
+              </div>
+              <Button
+                type="submit"
+                disabled={pwLoading}
+                className="w-full sm:w-auto bg-[#0F0F12] border border-[#FF5722]/50 text-white hover:bg-[#FF5722]/10 rounded-sm"
+                data-testid="profile-update-password-button"
+              >
+                {pwLoading ? 'Updating…' : 'Update password'}
+              </Button>
+            </form>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">

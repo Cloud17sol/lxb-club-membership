@@ -463,6 +463,28 @@ async def update_profile(update_data: ProfileUpdate, current_user: dict = Depend
     profile["role"] = current_user["role"]
     return profile
 
+
+@api_router.put("/profile/change-password")
+async def change_own_password(data: PasswordChangeRequest, current_user: dict = Depends(get_current_user)):
+    """Member (or any logged-in user) changes their own password — e.g. after admin reset."""
+    if data.new_password != data.confirm_password:
+        raise HTTPException(status_code=400, detail="New password and confirm password do not match")
+    if len(data.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+
+    user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0})
+    if not user or not verify_password(data.current_password, user["password"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    new_hashed = hash_password(data.new_password)
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"password": new_hashed}}
+    )
+    logger.info("Password changed via profile for user %s", current_user["id"])
+    return {"message": "Password updated successfully"}
+
+
 # Image upload endpoint
 @api_router.post("/upload/profile-image")
 async def upload_profile_image(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
