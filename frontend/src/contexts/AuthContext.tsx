@@ -29,32 +29,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = localStorage.getItem('token');
-      if (savedToken) {
-        try {
-          const response = await fetch(`${API_URL}/auth/me`, {
-            headers: { 'Authorization': `Bearer ${savedToken}` }
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-            setToken(savedToken);
-          } else {
-            localStorage.removeItem('token');
-            setToken(null);
-          }
-        } catch (error) {
-          console.error('Auth init error:', error);
-          localStorage.removeItem('token');
-          setToken(null);
-        }
+      if (!savedToken) {
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
+      try {
+        const { data } = await axios.get(`${API_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${savedToken}` },
+          timeout: 15000
+        });
+        setUser(data);
+        setToken(savedToken);
+      } catch {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
     };
     initAuth();
   }, []);
 
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'token' && e.newValue === null) {
+        setUser(null);
+        setToken(null);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const login = async (email: string, password: string) => {
-    // Use axios (XHR) instead of fetch so dev tooling cannot consume the Response body before we read it.
     try {
       const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
 
