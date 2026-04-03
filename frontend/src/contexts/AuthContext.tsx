@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!response.ok) {
           throw new Error('Invalid username or password');
         }
-        throw new Error('Invalid server response');
+        throw new Error('Invalid username or password');
       }
     }
 
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!data?.user || !data?.access_token) {
-      throw new Error('Invalid server response');
+      throw new Error('Invalid username or password');
     }
 
     setUser(data.user);
