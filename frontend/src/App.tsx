@@ -16,7 +16,15 @@ import AdminMemberEdit from '@/pages/AdminMemberEdit';
 import AdminPayments from '@/pages/AdminPayments';
 import AdminSettings from '@/pages/AdminSettings';
 
-const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
+const ProtectedRoute = ({
+  children,
+  adminOnly = false,
+  memberOnly = false
+}: {
+  children: React.ReactNode;
+  adminOnly?: boolean;
+  memberOnly?: boolean;
+}) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -33,6 +41,10 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
 
   if (adminOnly && user.role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  if (memberOnly && user.role === 'admin') {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{children}</>;
@@ -62,9 +74,9 @@ function AppRoutes() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       
-      <Route path="/dashboard" element={<ProtectedRoute><MemberDashboard /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      <Route path="/payment/callback" element={<ProtectedRoute><PaymentCallbackPage /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute memberOnly><MemberDashboard /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute memberOnly><ProfilePage /></ProtectedRoute>} />
+      <Route path="/payment/callback" element={<ProtectedRoute memberOnly><PaymentCallbackPage /></ProtectedRoute>} />
       
       <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/members" element={<ProtectedRoute adminOnly><AdminMembers /></ProtectedRoute>} />
