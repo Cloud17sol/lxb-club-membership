@@ -173,6 +173,37 @@ const AdminMemberEdit = () => {
             </div>
           )}
 
+          {profile && profile.role !== 'admin' && (
+            <div className="mb-8 p-5 rounded-sm border border-[#FF5722]/30 bg-[#FF5722]/5 space-y-3">
+              <h2 className="text-white font-bold text-sm uppercase tracking-wide flex items-center gap-2">
+                <KeyRound size={18} className="text-[#FF5722]" />
+                Account security
+              </h2>
+              <p className="text-[#A0A0AB] text-sm leading-relaxed">
+                If this member forgot their password, reset it to the club default. Share the temporary password securely
+                (in person or phone). The server default can be overridden with{' '}
+                <code className="text-white/90 bg-black/30 px-1.5 py-0.5 rounded text-xs">DEFAULT_MEMBER_PASSWORD</code>.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={resetLoading}
+                onClick={handleResetPassword}
+                className="w-full sm:w-auto border-[#FF5722]/50 text-white hover:bg-[#FF5722]/10 hover:text-white rounded-sm"
+                data-testid="reset-member-password-button"
+              >
+                {resetLoading ? (
+                  'Resetting…'
+                ) : (
+                  <>
+                    <KeyRound size={18} className="mr-2" />
+                    Reset password to default
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -231,31 +262,6 @@ const AdminMemberEdit = () => {
                   data-testid="member-address-input"
                 />
               </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/10 space-y-3">
-              <p className="text-[#A0A0AB] text-sm">
-                If this member forgot their password, reset it to the club default. Share the temporary password with them
-                securely (in person or phone). You can change the default on the server with{' '}
-                <code className="text-white/90 bg-white/5 px-1 rounded text-xs">DEFAULT_MEMBER_PASSWORD</code>.
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={resetLoading || !profile || profile?.role === 'admin'}
-                onClick={handleResetPassword}
-                className="w-full border-white/20 text-white hover:bg-white/5 hover:text-white rounded-sm"
-                data-testid="reset-member-password-button"
-              >
-                {resetLoading ? (
-                  'Resetting…'
-                ) : (
-                  <>
-                    <KeyRound size={18} className="mr-2" />
-                    Reset password to default
-                  </>
-                )}
-              </Button>
             </div>
 
             <Button
