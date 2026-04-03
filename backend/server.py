@@ -540,8 +540,39 @@ async def upload_profile_image(file: UploadFile = File(...), current_user: dict 
         raise HTTPException(status_code=400, detail="File must be an image")
 
     data = await file.read()
-    if len(data) > 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File size must be less than 1MB")
+
+    # Attempt compression if file is larger than 300KB
+    MAX_SIZE = 300 * 1024
+
+    try:
+        img = Image.open(io.BytesIO(data))
+        img = img.convert("RGB")  # normalize format
+
+        quality = 85
+        compressed_buffer = io.BytesIO()
+
+        # Iteratively reduce quality until under size or threshold reached
+        while True:
+            compressed_buffer.seek(0)
+            compressed_buffer.truncate(0)
+
+            img.save(compressed_buffer, format="JPEG", quality=quality, optimize=True)
+
+            if compressed_buffer.tell() <= MAX_SIZE or quality <= 30:
+                break
+
+            quality -= 5
+
+        data = compressed_buffer.getvalue()
+
+        if len(data) > MAX_SIZE:
+            raise HTTPException(status_code=400, detail="Unable to compress image below 300KB")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Image compression failed: {e}")
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Decode and validate actual image bytes (not just Content-Type / filename)
     try:
