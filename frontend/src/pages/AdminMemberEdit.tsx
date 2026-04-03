@@ -8,8 +8,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, User as UserIcon } from 'lucide-react';
 import { buildFileUrl } from '@/utils/fileHelpers';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+import { API_URL } from '@/apiConfig';
 
 const AdminMemberEdit = () => {
   const { userId } = useParams();

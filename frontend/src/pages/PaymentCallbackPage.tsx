@@ -1,11 +1,11 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+import { API_URL } from '@/apiConfig';
 
 const PaymentCallbackPage = () => {
   const [searchParams] = useSearchParams();
@@ -28,11 +28,9 @@ const PaymentCallbackPage = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/payment/verify/${reference}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const { data } = await axios.get(`${API_URL}/payment/verify/${reference}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      const data = await response.json();
 
       if (data.status === 'success') {
         setStatus('success');

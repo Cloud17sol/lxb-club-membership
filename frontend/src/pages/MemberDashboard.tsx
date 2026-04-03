@@ -8,8 +8,7 @@ import { toast } from 'sonner';
 import { LogOut, User, CreditCard, History, Wallet, AlertCircle } from 'lucide-react';
 import VirtualMembershipCard from '@/components/VirtualMembershipCard';
 import { format } from 'date-fns';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+import { API_URL } from '@/apiConfig';
 
 const MemberDashboard = () => {
   const { user, token, logout } = useAuth();

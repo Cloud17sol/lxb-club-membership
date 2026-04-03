@@ -8,8 +8,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Upload, Camera } from 'lucide-react';
 import { buildFileUrl } from '@/utils/fileHelpers';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+import { API_URL } from '@/apiConfig';
 
 const ProfilePage = () => {
   const { token } = useAuth();

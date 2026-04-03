@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Users, DollarSign, CheckCircle, XCircle, LogOut, Settings } from 'lucide-react';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+import { API_URL } from '@/apiConfig';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();

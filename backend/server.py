@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import json
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
@@ -80,7 +81,9 @@ async def get_active_paystack_keys():
     # Fallback to environment or placeholder
     if not secret_key:
         secret_key = os.environ.get('PAYSTACK_SECRET_KEY', 'sk_test_placeholder')
-    
+
+    return secret_key, public_key, mode
+
 
 # Local File Storage
 UPLOADS_DIR = ROOT_DIR / "uploads"
@@ -769,8 +772,12 @@ async def paystack_webhook(request: Request):
     if not hmac.compare_digest(computed_signature, signature or ""):
         logger.warning("Webhook signature mismatch")
         raise HTTPException(status_code=401, detail="Invalid signature")
-    
-    event = await request.json()
+
+    # Parse the same raw body used for the signature (avoid a second body read).
+    try:
+        event = json.loads(body)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
     event_type = event.get("event")
     logger.info(f"Paystack webhook received: {event_type}")
     

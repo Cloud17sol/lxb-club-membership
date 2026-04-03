@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Shield, Eye, EyeOff, AlertTriangle, CheckCircle2, CreditCard, Lock } from 'lucide-react';
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+import { API_URL, BACKEND_ORIGIN } from '@/apiConfig';
 
 const AdminSettings = () => {
   const { token } = useAuth();
@@ -457,7 +456,7 @@ const AdminSettings = () => {
             <p className="text-[#A0A0AB] text-sm">
               <strong className="text-white">Webhook URL:</strong>{' '}
               <code className="text-[#FF5722] bg-white/5 px-2 py-0.5 rounded text-xs">
-                {process.env.REACT_APP_BACKEND_URL}/api/payment/webhook
+                {BACKEND_ORIGIN}/api/payment/webhook
               </code>
             </p>
             <p className="text-[#A0A0AB] text-xs">
