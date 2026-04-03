@@ -23,7 +23,7 @@ const LoginPage = () => {
 
     try {
       await login(email, password);
-      toast.success('Login successful!');
+      toast.success('Login successful..!');
       navigate('/dashboard');
     } catch (error: any) {
       const msg = String(error?.message || '');
