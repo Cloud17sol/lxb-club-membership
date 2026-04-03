@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,9 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const progressTimerRef = useRef<any>(null);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -41,6 +44,29 @@ const ProfilePage = () => {
   useEffect(() => {
     setImageFailed(false);
   }, [profile?.profile_image_url]);
+
+  const stopProgressTimer = () => {
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
+  };
+
+  const startProgressTimer = () => {
+    stopProgressTimer();
+    progressTimerRef.current = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 85) return prev;
+        return prev + 5;
+      });
+    }, 180);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopProgressTimer();
+    };
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -73,15 +99,15 @@ const ProfilePage = () => {
       return;
     }
 
-    if (file.size > 1024 * 1024) {
-      toast.error('Image size must be less than 1MB');
-      return;
-    }
-
+    setCompressing(true);
     setUploading(true);
+    setUploadProgress(10);
+    startProgressTimer();
     try {
       const formData = new FormData();
+      setUploadProgress(25);
       formData.append('file', file);
+      setUploadProgress(35);
 
       const response = await fetch(`${API_URL}/upload/profile-image`, {
         method: 'POST',
@@ -91,12 +117,16 @@ const ProfilePage = () => {
         body: formData
       });
 
+      setCompressing(false);
+      setUploadProgress(90);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: 'Upload failed' }));
         throw new Error(errorData.detail || 'Upload failed');
       }
 
       const data = await response.json();
+      stopProgressTimer();
+      setUploadProgress(100);
       toast.success('Profile image uploaded successfully..!');
       
       // Refresh profile to show new image
@@ -104,10 +134,18 @@ const ProfilePage = () => {
         fetchProfile();
       }, 500);
     } catch (error: any) {
+      stopProgressTimer();
+      setCompressing(false);
+      setUploadProgress(0);
       console.error('Upload error:', error);
       toast.error(error.message || 'Failed to upload image');
     } finally {
-      setUploading(false);
+      stopProgressTimer();
+      setTimeout(() => {
+        setUploading(false);
+        setCompressing(false);
+        setUploadProgress(0);
+      }, 400);
     }
   };
 
@@ -235,8 +273,21 @@ const ProfilePage = () => {
                 />
               </label>
             </div>
-            {uploading && <p className="text-[#A0A0AB] text-sm">Uploading...</p>}
-            <p className="text-[#A0A0AB] text-xs text-center max-w-xs">Click the upload button to change your profile picture (max 1MB)</p>
+            {(compressing || uploading) && (
+              <div className="w-full max-w-xs mt-2">
+                <p className="text-[#A0A0AB] text-sm text-center">
+                  {compressing ? 'Compressing image…' : 'Uploading image…'}
+                </p>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full bg-[#FF5722] transition-all duration-200"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-center text-xs text-[#A0A0AB]">{uploadProgress}%</p>
+              </div>
+            )}
+            <p className="text-[#A0A0AB] text-xs text-center max-w-xs">Click the upload button to change your profile picture. Images are automatically compressed to max 300KB.</p>
           </div>
 
           {profile && (
