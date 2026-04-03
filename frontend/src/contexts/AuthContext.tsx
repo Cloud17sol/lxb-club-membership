@@ -60,15 +60,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password })
     });
 
-    let data: any;
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error('Invalid server response');
+    const rawText = await response.text();
+    let data: any = null;
+
+    if (rawText) {
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        if (!response.ok) {
+          throw new Error('Invalid username or password');
+        }
+        throw new Error('Invalid server response');
+      }
     }
 
     if (!response.ok) {
       throw new Error(data?.detail || data?.message || 'Invalid username or password');
+    }
+
+    if (!data?.user || !data?.access_token) {
+      throw new Error('Invalid server response');
     }
 
     setUser(data.user);
@@ -83,15 +94,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(signupData)
     });
 
-    let data: any;
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error('Invalid server response');
+    const rawText = await response.text();
+    let data: any = null;
+
+    if (rawText) {
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        if (!response.ok) {
+          throw new Error('Signup failed');
+        }
+        throw new Error('Invalid server response');
+      }
     }
 
     if (!response.ok) {
       throw new Error(data?.detail || data?.message || 'Signup failed');
+    }
+
+    if (!data?.user || !data?.access_token) {
+      throw new Error('Invalid server response');
     }
 
     setUser(data.user);
