@@ -1,21 +1,21 @@
 // @ts-nocheck
-import '@/App.css';
+import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Toaster } from './components/ui/sonner';
 
 // Pages
-import LoginPage from '@/pages/LoginPage';
-import SignupPage from '@/pages/SignupPage';
-import MemberDashboard from '@/pages/MemberDashboard';
-import ProfilePage from '@/pages/ProfilePage';
-import PaymentCallbackPage from '@/pages/PaymentCallbackPage';
-import AdminDashboard from '@/pages/AdminDashboard';
-import AdminMembers from '@/pages/AdminMembers';
-import AdminMemberEdit from '@/pages/AdminMemberEdit';
-import AdminPayments from '@/pages/AdminPayments';
-import AdminSettings from '@/pages/AdminSettings';
-import AdminClubUpdates from '@/pages/AdminClubUpdates';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import MemberDashboard from './pages/MemberDashboard';
+import ProfilePage from './pages/ProfilePage';
+import PaymentCallbackPage from './pages/PaymentCallbackPage';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminMembers from './pages/AdminMembers';
+import AdminMemberEdit from './pages/AdminMemberEdit';
+import AdminPayments from './pages/AdminPayments';
+import AdminSettings from './pages/AdminSettings';
+import AdminClubUpdates from './pages/AdminClubUpdates';
 
 const ProtectedRoute = ({
   children,
