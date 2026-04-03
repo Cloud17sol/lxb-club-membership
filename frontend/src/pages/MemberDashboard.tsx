@@ -381,9 +381,14 @@ const handlePayDues = async () => {
             {/* Last payment info */}
             {lastPayment && (
               <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-6" data-testid="last-payment-section">
-                <div className="flex items-center gap-3 mb-4">
-                  <History size={20} className="text-[#4CAF50]" />
-                  <h3 className="text-lg font-black bebas uppercase tracking-tight text-white">Last Payment</h3>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <History size={20} className="text-[#4CAF50]" />
+                    <h3 className="text-lg font-black bebas uppercase tracking-tight text-white">Last Payment</h3>
+                  </div>
+                  <span className="px-3 py-1 text-xs font-bold uppercase rounded-sm bg-[#FF5722]/10 text-[#FF5722] border border-[#FF5722]/20">
+                    Paid for: {format(new Date(`${lastPayment.year}-${lastPayment.month}-01`), 'MMMM yyyy')}
+                  </span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
