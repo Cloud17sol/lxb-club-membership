@@ -60,7 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password })
     });
 
-    const rawText = await response.text();
+    // Clone before reading so dev tooling / fetch wrappers that touch the body cannot exhaust the stream.
+    const rawText = await response.clone().text();
     let data: any = null;
 
     if (rawText) {
@@ -94,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(signupData)
     });
 
-    const rawText = await response.text();
+    const rawText = await response.clone().text();
     let data: any = null;
 
     if (rawText) {

@@ -26,7 +26,12 @@ const LoginPage = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error: any) {
-      setErrorMessage(error.message || 'Invalid username or password');
+      const msg = String(error?.message || '');
+      const isFetchBodyError =
+        /body stream already read|Failed to execute 'text' on 'Response'/i.test(msg);
+      setErrorMessage(
+        isFetchBodyError ? 'Invalid username or password' : msg || 'Invalid username or password'
+      );
     } finally {
       setLoading(false);
     }
