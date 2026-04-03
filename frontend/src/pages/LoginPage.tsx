@@ -27,10 +27,10 @@ const LoginPage = () => {
       navigate('/dashboard');
     } catch (error: any) {
       const msg = String(error?.message || '');
-      const isFetchBodyError =
-        /body stream already read|Failed to execute 'text' on 'Response'/i.test(msg);
+      const isTechnicalFetchError =
+        /Failed to execute|Response body is already used|body stream already read/i.test(msg);
       setErrorMessage(
-        isFetchBodyError ? 'Invalid username or password' : msg || 'Invalid username or password'
+        isTechnicalFetchError ? 'Invalid username or password' : msg || 'Invalid username or password'
       );
     } finally {
       setLoading(false);

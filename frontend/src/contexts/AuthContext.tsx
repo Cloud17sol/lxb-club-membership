@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 interface User {
   id: string;
@@ -54,72 +55,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    // Use axios (XHR) instead of fetch so dev tooling cannot consume the Response body before we read it.
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
 
-    // Clone before reading so dev tooling / fetch wrappers that touch the body cannot exhaust the stream.
-    const rawText = await response.clone().text();
-    let data: any = null;
+      if (!data?.user || !data?.access_token) {
+        throw new Error('Invalid username or password');
+      }
 
-    if (rawText) {
-      try {
-        data = JSON.parse(rawText);
-      } catch {
-        if (!response.ok) {
-          throw new Error('Invalid username or password');
+      setUser(data.user);
+      setToken(data.access_token);
+      localStorage.setItem('token', data.access_token);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          throw new Error('Unable to connect. Please try again.');
         }
         throw new Error('Invalid username or password');
       }
+      throw err;
     }
-
-    if (!response.ok) {
-      throw new Error(data?.detail || data?.message || 'Invalid username or password');
-    }
-
-    if (!data?.user || !data?.access_token) {
-      throw new Error('Invalid username or password');
-    }
-
-    setUser(data.user);
-    setToken(data.access_token);
-    localStorage.setItem('token', data.access_token);
   };
 
   const signup = async (signupData: any) => {
-    const response = await fetch(`${API_URL}/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(signupData)
-    });
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/signup`, signupData);
 
-    const rawText = await response.clone().text();
-    let data: any = null;
-
-    if (rawText) {
-      try {
-        data = JSON.parse(rawText);
-      } catch {
-        if (!response.ok) {
-          throw new Error('Signup failed');
-        }
-        throw new Error('Invalid server response');
+      if (!data?.user || !data?.access_token) {
+        throw new Error('Signup failed');
       }
-    }
 
-    if (!response.ok) {
-      throw new Error(data?.detail || data?.message || 'Signup failed');
+      setUser(data.user);
+      setToken(data.access_token);
+      localStorage.setItem('token', data.access_token);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          throw new Error('Unable to connect. Please try again.');
+        }
+        const detail = err.response?.data?.detail;
+        const msg =
+          typeof detail === 'string'
+            ? detail
+            : Array.isArray(detail) && detail[0]?.msg
+              ? detail[0].msg
+              : 'Signup failed';
+        throw new Error(msg);
+      }
+      throw err;
     }
-
-    if (!data?.user || !data?.access_token) {
-      throw new Error('Invalid server response');
-    }
-
-    setUser(data.user);
-    setToken(data.access_token);
-    localStorage.setItem('token', data.access_token);
   };
 
   const logout = () => {
