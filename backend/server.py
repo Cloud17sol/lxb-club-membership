@@ -487,21 +487,33 @@ async def change_own_password(data: PasswordChangeRequest, current_user: dict = 
 
 
 # Image upload endpoint (files live under backend/uploads — use a persistent volume or object storage in production)
+ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "GIF", "WEBP"}
+
+
 @api_router.post("/upload/profile-image")
 async def upload_profile_image(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
-    # Validate file type
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
-    
-    # Read file data
+
     data = await file.read()
-    
-    # Limit file size to 1MB
     if len(data) > 1024 * 1024:
         raise HTTPException(status_code=400, detail="File size must be less than 1MB")
-    
-    # Generate local relative path (canonical format stored in DB)
-    ext = file.filename.split(".")[-1].lower() if file.filename and "." in file.filename else "jpg"
+
+    # Decode and validate actual image bytes (not just Content-Type / filename)
+    try:
+        with Image.open(io.BytesIO(data)) as im:
+            im.verify()
+        im = Image.open(io.BytesIO(data))
+        im.load()
+        if im.format not in ALLOWED_IMAGE_FORMATS:
+            raise HTTPException(status_code=400, detail="Only JPEG, PNG, GIF, or WebP images are allowed")
+        fmt = im.format
+        ext = "jpg" if fmt == "JPEG" else fmt.lower()
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or corrupted image file")
+
     relative_path = f"profiles/{current_user['id']}/{uuid.uuid4()}.{ext}"
 
     try:
@@ -711,6 +723,10 @@ async def verify_payment(reference: str, current_user: dict = Depends(get_curren
         payment = await db.payments.find_one({"paystack_reference": reference}, {"_id": 0})
     if not payment:
         raise HTTPException(status_code=404, detail="Payment not found")
+
+    # Prevent IDOR: only the payer may trigger browser verification for this reference
+    if payment["user_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not authorized to verify this payment")
     
     if payment["status"] == "success":
         return {"status": "success", "message": "Payment already verified"}
@@ -1419,10 +1435,22 @@ async def get_payment_gateway_status(current_user: dict = Depends(get_current_us
 # Include router
 app.include_router(api_router)
 
+# Set CORS_ORIGINS to a comma-separated list of frontend origins (e.g. https://members.example.com).
+# Wildcard "*" is not allowed with credentials=True in browsers; we disable credentials when using "*".
+_cors_raw = os.environ.get("CORS_ORIGINS", "*").strip()
+if _cors_raw == "*":
+    _cors_list = ["*"]
+else:
+    _cors_list = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+    if not _cors_list:
+        _cors_list = ["*"]
+
+_cors_allow_credentials = "*" not in _cors_list
+
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_credentials=_cors_allow_credentials,
+    allow_origins=_cors_list,
     allow_methods=["*"],
     allow_headers=["*"],
 )
