@@ -90,7 +90,7 @@ const ProfilePage = () => {
       }
 
       const data = await response.json();
-      toast.success('Profile image uploaded successfully!');
+      toast.success('Profile image uploaded successfully..!');
       
       // Refresh profile to show new image
       setTimeout(() => {
