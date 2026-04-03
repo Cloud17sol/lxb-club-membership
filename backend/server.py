@@ -31,6 +31,31 @@ from PIL import Image
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+
+def cloudinary_configured() -> bool:
+    """True if Cloudinary env is set (URL from dashboard, or cloud_name + key + secret)."""
+    if os.environ.get("CLOUDINARY_URL"):
+        return True
+    return bool(
+        os.environ.get("CLOUDINARY_CLOUD_NAME")
+        and os.environ.get("CLOUDINARY_API_KEY")
+        and os.environ.get("CLOUDINARY_API_SECRET")
+    )
+
+
+def configure_cloudinary():
+    """Call before upload when using separate key vars (CLOUDINARY_URL is auto-read by the SDK)."""
+    import cloudinary
+
+    if os.environ.get("CLOUDINARY_URL"):
+        return
+    if os.environ.get("CLOUDINARY_CLOUD_NAME"):
+        cloudinary.config(
+            cloud_name=os.environ["CLOUDINARY_CLOUD_NAME"],
+            api_key=os.environ.get("CLOUDINARY_API_KEY"),
+            api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+        )
+
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
@@ -486,7 +511,7 @@ async def change_own_password(data: PasswordChangeRequest, current_user: dict = 
     return {"message": "Password updated successfully"}
 
 
-# Image upload endpoint (files live under backend/uploads — use a persistent volume or object storage in production)
+# Image upload: prefer Cloudinary when CLOUDINARY_* / CLOUDINARY_URL is set; else local backend/uploads
 ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "GIF", "WEBP"}
 
 
@@ -514,18 +539,46 @@ async def upload_profile_image(file: UploadFile = File(...), current_user: dict 
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid or corrupted image file")
 
+    # Cloudinary: store full https URL in profile_image_url (frontend buildFileUrl passes through unchanged)
+    if cloudinary_configured():
+        try:
+            import cloudinary.uploader
+
+            configure_cloudinary()
+            result = cloudinary.uploader.upload(
+                io.BytesIO(data),
+                folder=f"lxb/profiles/{current_user['id']}",
+                public_id=uuid.uuid4().hex,
+                resource_type="image",
+                overwrite=True,
+            )
+            secure_url = result.get("secure_url")
+            if not secure_url:
+                raise HTTPException(status_code=502, detail="Cloudinary did not return a URL")
+
+            await db.profiles.update_one(
+                {"user_id": current_user["id"]},
+                {"$set": {"profile_image_url": secure_url}},
+            )
+            logger.info("Profile image uploaded to Cloudinary for user %s", current_user["id"])
+            return {"url": secure_url, "path": secure_url, "size": len(data)}
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Cloudinary upload failed: {e}")
+            raise HTTPException(status_code=502, detail="Image storage failed. Try again later.")
+
     relative_path = f"profiles/{current_user['id']}/{uuid.uuid4()}.{ext}"
 
     try:
-        saved_path = save_local_file(relative_path, data)
+        save_local_file(relative_path, data)
 
-        # Save ONLY the relative path to database (not the full URL)
         await db.profiles.update_one(
             {"user_id": current_user["id"]},
-            {"$set": {"profile_image_url": relative_path}}
+            {"$set": {"profile_image_url": relative_path}},
         )
 
-        logger.info(f"Profile image uploaded successfully: {relative_path}")
+        logger.info(f"Profile image saved locally: {relative_path}")
         return {"path": relative_path, "size": len(data)}
     except HTTPException:
         raise
@@ -1294,22 +1347,26 @@ async def export_members_pdf(admin_user: dict = Depends(get_admin_user)):
                 sort=[("paid_at", -1)]
             )
             
-            # Handle profile image
+            # Handle profile image (Cloudinary HTTPS URL or local relative path)
             img_cell = ""
             if profile.get("profile_image_url"):
                 try:
-                    local_image_path = get_local_file(profile["profile_image_url"])
-
-                    # Create PIL Image
-                    pil_img = Image.open(local_image_path)
+                    purl = profile["profile_image_url"]
+                    if purl.startswith("http://") or purl.startswith("https://"):
+                        async with httpx.AsyncClient() as http_client:
+                            r = await http_client.get(purl, timeout=15.0)
+                            r.raise_for_status()
+                            raw = r.content
+                        pil_img = Image.open(io.BytesIO(raw))
+                    else:
+                        local_image_path = get_local_file(purl)
+                        pil_img = Image.open(local_image_path)
                     pil_img.thumbnail((40, 40))
 
-                    # Save to BytesIO
                     img_buffer = io.BytesIO()
                     pil_img.save(img_buffer, format='PNG')
                     img_buffer.seek(0)
 
-                    # Create ReportLab Image
                     img_cell = RLImage(img_buffer, width=30, height=30)
                 except Exception as e:
                     logger.error(f"Failed to load image: {e}")
