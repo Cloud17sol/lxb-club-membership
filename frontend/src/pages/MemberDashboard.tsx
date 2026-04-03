@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -146,27 +147,35 @@ const handlePayDues = async () => {
   setPaymentLoading(true);
   try {
     const callbackUrl = `${window.location.origin}/payment/callback`;
-    const response = await fetch(`${API_URL}/payment/initialize`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
+    // axios avoids fetch interception (e.g. dev overlays) that postMessage Request objects and throw.
+    const { data } = await axios.post(
+      `${API_URL}/payment/initialize`,
+      {
         callback_url: callbackUrl,
         include_physical_card: includePhysicalCard
-      })
-    });
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || data.message || 'Payment initialization failed');
+    if (!data?.authorization_url) {
+      throw new Error(data?.detail || data?.message || 'Payment initialization failed');
     }
 
     window.location.href = data.authorization_url;
   } catch (error: any) {
-    toast.error(error.message || 'Failed to initialize payment');
+    let message = 'Failed to initialize payment';
+    if (axios.isAxiosError(error)) {
+      const d = error.response?.data?.detail ?? error.response?.data?.message;
+      message = typeof d === 'string' ? d : !error.response ? 'Unable to connect. Please try again.' : message;
+    } else if (error?.message) {
+      message = error.message;
+    }
+    toast.error(message);
     setPaymentLoading(false);
   }
 };
