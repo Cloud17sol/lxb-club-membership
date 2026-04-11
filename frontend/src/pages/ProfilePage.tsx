@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Upload, Camera, Lock } from 'lucide-react';
 import { buildFileUrl } from '@/utils/fileHelpers';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { API_URL } from '../apiConfig';
 
 const ProfilePage = () => {
@@ -243,6 +244,26 @@ const ProfilePage = () => {
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-8">
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList
+            className="grid w-full grid-cols-2 gap-1 h-auto p-1 rounded-sm bg-[#1A1A20] border border-white/10 mb-6"
+            data-testid="profile-settings-tabs"
+          >
+            <TabsTrigger
+              value="profile"
+              className="rounded-sm py-3 px-2 text-sm font-black bebas uppercase tracking-tight text-[#A0A0AB] data-[state=active]:bg-[#FF5722] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Profile
+            </TabsTrigger>
+            <TabsTrigger
+              value="password"
+              className="rounded-sm py-3 px-2 text-sm font-black bebas uppercase tracking-tight text-[#A0A0AB] data-[state=active]:bg-[#FF5722] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Change Password
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="outline-none">
         <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-8">
           {/* Profile Image Upload */}
           <div className="mb-8 flex flex-col items-center">
@@ -295,71 +316,6 @@ const ProfilePage = () => {
               <div className="text-[#A0A0AB] text-xs uppercase tracking-[0.2em] mb-1">Membership ID</div>
               <div className="text-white text-xl font-black bebas">{profile.membership_id}</div>
             </div>
-          )}
-
-          {profile && (
-            <form onSubmit={handlePasswordSubmit} className="mb-8 p-5 rounded-sm border border-[#FF5722]/30 bg-[#FF5722]/5 space-y-4">
-              <h2 className="text-white font-bold text-sm uppercase tracking-wide flex items-center gap-2">
-                <Lock size={18} className="text-[#FF5722]" />
-                Change password
-              </h2>
-              <p className="text-[#A0A0AB] text-sm">
-                If an admin reset your password, sign in with the temporary password, then set a new one here. Minimum 8
-                characters.
-              </p>
-              <div>
-                <Label htmlFor="current_password" className="text-white text-sm font-medium">
-                  Current password
-                </Label>
-                <Input
-                  id="current_password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={pwData.current_password}
-                  onChange={(e) => setPwData((p) => ({ ...p, current_password: e.target.value }))}
-                  className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
-                  data-testid="profile-current-password-input"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="new_password" className="text-white text-sm font-medium">
-                    New password
-                  </Label>
-                  <Input
-                    id="new_password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={pwData.new_password}
-                    onChange={(e) => setPwData((p) => ({ ...p, new_password: e.target.value }))}
-                    className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
-                    data-testid="profile-new-password-input"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="confirm_password" className="text-white text-sm font-medium">
-                    Confirm new password
-                  </Label>
-                  <Input
-                    id="confirm_password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={pwData.confirm_password}
-                    onChange={(e) => setPwData((p) => ({ ...p, confirm_password: e.target.value }))}
-                    className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
-                    data-testid="profile-confirm-password-input"
-                  />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                disabled={pwLoading}
-                className="w-full sm:w-auto bg-[#0F0F12] border border-[#FF5722]/50 text-white hover:bg-[#FF5722]/10 rounded-sm"
-                data-testid="profile-update-password-button"
-              >
-                {pwLoading ? 'Updating…' : 'Update password'}
-              </Button>
-            </form>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -437,6 +393,83 @@ const ProfilePage = () => {
             </Button>
           </form>
         </div>
+          </TabsContent>
+
+          <TabsContent value="password" className="outline-none">
+            <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-8">
+              {profile ? (
+                <form
+                  onSubmit={handlePasswordSubmit}
+                  className="p-5 rounded-sm border border-[#FF5722]/30 bg-[#FF5722]/5 space-y-4"
+                  data-testid="profile-change-password-form"
+                >
+                  <h2 className="text-white font-bold text-sm uppercase tracking-wide flex items-center gap-2">
+                    <Lock size={18} className="text-[#FF5722]" />
+                    Change password
+                  </h2>
+                  <p className="text-[#A0A0AB] text-sm">
+                    If an admin reset your password, sign in with the temporary password, then set a new one here.
+                    Minimum 8 characters.
+                  </p>
+                  <div>
+                    <Label htmlFor="current_password" className="text-white text-sm font-medium">
+                      Current password
+                    </Label>
+                    <Input
+                      id="current_password"
+                      type="password"
+                      autoComplete="current-password"
+                      value={pwData.current_password}
+                      onChange={(e) => setPwData((p) => ({ ...p, current_password: e.target.value }))}
+                      className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
+                      data-testid="profile-current-password-input"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="new_password" className="text-white text-sm font-medium">
+                        New password
+                      </Label>
+                      <Input
+                        id="new_password"
+                        type="password"
+                        autoComplete="new-password"
+                        value={pwData.new_password}
+                        onChange={(e) => setPwData((p) => ({ ...p, new_password: e.target.value }))}
+                        className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
+                        data-testid="profile-new-password-input"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm_password" className="text-white text-sm font-medium">
+                        Confirm new password
+                      </Label>
+                      <Input
+                        id="confirm_password"
+                        type="password"
+                        autoComplete="new-password"
+                        value={pwData.confirm_password}
+                        onChange={(e) => setPwData((p) => ({ ...p, confirm_password: e.target.value }))}
+                        className="mt-2 bg-[#0F0F12] border-white/10 text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] rounded-sm"
+                        data-testid="profile-confirm-password-input"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={pwLoading}
+                    className="w-full sm:w-auto bg-[#0F0F12] border border-[#FF5722]/50 text-white hover:bg-[#FF5722]/10 rounded-sm"
+                    data-testid="profile-update-password-button"
+                  >
+                    {pwLoading ? 'Updating…' : 'Update password'}
+                  </Button>
+                </form>
+              ) : (
+                <p className="text-[#A0A0AB] text-sm">Loading profile…</p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
