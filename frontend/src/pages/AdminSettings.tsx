@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Shield, Eye, EyeOff, AlertTriangle, CheckCircle2, CreditCard, Lock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { API_URL, BACKEND_ORIGIN } from '../apiConfig';
 
 const AdminSettings = () => {
@@ -204,9 +205,33 @@ const AdminSettings = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        <Tabs defaultValue="dues" className="w-full">
+          <TabsList
+            className="grid w-full grid-cols-3 gap-1 h-auto p-1 rounded-sm bg-[#1A1A20] border border-white/10"
+            data-testid="settings-tabs"
+          >
+            <TabsTrigger
+              value="dues"
+              className="rounded-sm py-3 px-2 text-xs sm:text-sm font-black bebas uppercase tracking-tight text-[#A0A0AB] data-[state=active]:bg-[#FF5722] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Dues Settings
+            </TabsTrigger>
+            <TabsTrigger
+              value="gateway"
+              className="rounded-sm py-3 px-2 text-xs sm:text-sm font-black bebas uppercase tracking-tight text-[#A0A0AB] data-[state=active]:bg-[#FF5722] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Payment Gateway
+            </TabsTrigger>
+            <TabsTrigger
+              value="password"
+              className="rounded-sm py-3 px-2 text-xs sm:text-sm font-black bebas uppercase tracking-tight text-[#A0A0AB] data-[state=active]:bg-[#FF5722] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Change Password
+            </TabsTrigger>
+          </TabsList>
 
-        {/* ─── DUES SETTINGS ─── */}
+          <TabsContent value="dues" className="mt-6 outline-none">
         <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-8">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard size={22} className="text-[#FF5722]" />
@@ -284,7 +309,14 @@ const AdminSettings = () => {
           </form>
         </div>
 
-        {/* ─── PAYSTACK GATEWAY SETTINGS ─── */}
+        <div className="mt-6 p-4 bg-[#1A1A20] border border-white/5 rounded-sm">
+          <p className="text-[#A0A0AB] text-sm">
+            <strong className="text-white">Note:</strong> Monthly dues are recurring payments. Physical ID card is an optional one-time add-on. Members who have already paid for the current month will not be affected by dues changes.
+          </p>
+        </div>
+          </TabsContent>
+
+          <TabsContent value="gateway" className="mt-6 outline-none">
         <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-8">
           <div className="flex items-center gap-3 mb-2">
             <Shield size={22} className="text-[#FF5722]" />
@@ -464,15 +496,9 @@ const AdminSettings = () => {
             </p>
           </div>
         </div>
+          </TabsContent>
 
-        {/* Info note */}
-        <div className="p-4 bg-[#1A1A20] border border-white/5 rounded-sm">
-          <p className="text-[#A0A0AB] text-sm">
-            <strong className="text-white">Note:</strong> Monthly dues are recurring payments. Physical ID card is an optional one-time add-on. Members who have already paid for the current month will not be affected by dues changes.
-          </p>
-        </div>
-
-        {/* ─── CHANGE PASSWORD ─── */}
+          <TabsContent value="password" className="mt-6 outline-none">
         <div className="bg-[#0F0F12] border border-white/10 rounded-sm p-8">
           <div className="flex items-center gap-3 mb-2">
             <Lock size={22} className="text-[#FF5722]" />
@@ -561,6 +587,8 @@ const AdminSettings = () => {
             </Button>
           </form>
         </div>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
