@@ -1,0 +1,269 @@
+---
+description: Premium member dashboard UI rules
+globs:
+  - "src/pages/**/*.{ts,tsx}"
+  - "src/components/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Purpose
+Use this rule when building or improving authenticated member dashboard screens.
+This rule is for logged-in product UI, not landing pages or public marketing pages.
+
+# Main goal
+Create a premium, modern, polished member dashboard that feels high-end, useful, and easy to scan.
+The dashboard should feel like a real product interface, not a generic admin panel and not a marketing homepage.
+
+# Dashboard identity
+This is a membership app dashboard.
+It should prioritize clarity, trust, status visibility, actions, and member experience.
+
+The UI should feel:
+- premium
+- structured
+- calm
+- polished
+- modern
+- mobile-ready
+- useful at a glance
+
+# Core dashboard principles
+Prefer:
+- clear information hierarchy
+- strong top-level summary
+- meaningful cards
+- consistent spacing
+- premium status badges
+- concise labels
+- smooth visual grouping
+- high readability
+- quick access to important member actions
+- layouts that reduce clutter
+
+Avoid:
+- homepage-style marketing sections inside the dashboard
+- oversized hero copy
+- decorative sections with no utility
+- too many cards competing equally
+- random color usage
+- bulky layouts
+- noisy gradients
+- excessive glassmorphism
+- cramped mobile layouts
+- fake data placeholders in final output
+
+# Primary dashboard content priorities
+When relevant, prioritize:
+1. membership status
+2. payment / dues status
+3. renewal information
+4. announcements / club updates
+5. upcoming events
+6. member ID / membership card
+7. benefits / perks
+8. profile completion or missing info
+9. quick actions
+10. support / contact / help area
+
+# Top section behavior
+The top section of a member dashboard should usually include:
+- a welcome or account summary area
+- current membership status
+- current payment or dues state
+- one or two key next actions
+
+Preferred examples:
+- Active / Expiring Soon / Pending badge
+- Paid for current month badge
+- Renew Membership button
+- View Membership Card
+- Update Profile
+- Upcoming Event preview
+
+# Card design rules
+Dashboard cards should:
+- have a clear single purpose
+- use concise headings
+- show the most important information first
+- support badges, icons, and actions cleanly
+- feel elevated and premium without being heavy
+
+Prefer cards such as:
+- Membership Status Card
+- Dues / Payment Card
+- Club Updates Card
+- Upcoming Events Card
+- Membership Benefits Card
+- Quick Actions Card
+- Profile Completion Card
+
+# Layout rules
+Prefer a dashboard structure such as:
+- summary header
+- primary info row or grid
+- secondary content grid
+- updates / events section
+- support or utility section
+
+Use:
+- responsive grids
+- fluid card widths
+- balanced spacing
+- clear separation between primary and secondary content
+
+Do not:
+- force every card to the same visual priority
+- create long walls of stacked boxes
+- use landing-page section spacing inside dense dashboard areas
+- overload the first screen with too many blocks
+
+# Premium visual language
+Use premium product UI ideas such as:
+- elevated surfaces
+- soft borders
+- subtle shadows
+- refined badge pills
+- restrained gradients
+- section grouping
+- layered but clean card layouts
+- tasteful icons
+- polished action buttons
+- subtle highlights for important statuses
+
+# 3D and depth behavior
+For dashboard screens:
+- use subtle depth only
+- prefer layered cards, soft elevation, hover lift, and shadow depth
+- do not use flashy 3D effects
+- do not turn dashboard sections into visual experiments
+- do not reduce readability for visual flair
+- avoid heavy 3D libraries unless explicitly requested for a specific widget
+
+# Status and badge rules
+Membership dashboards must communicate status clearly.
+Use strong but tasteful status indicators for:
+- active membership
+- expired membership
+- pending payment
+- paid current period
+- event registration state
+- profile incomplete state
+
+Status UI should:
+- be immediately scannable
+- not rely only on color
+- include text labels
+- feel premium, not loud
+
+# Copy rules
+Dashboard copy should be:
+- concise
+- functional
+- reassuring
+- professional
+- clear
+
+Prefer:
+- "Membership Active"
+- "Paid for: April 2026"
+- "Renew by May 5"
+- "Next Event"
+- "Profile Incomplete"
+
+Avoid:
+- long marketing paragraphs
+- hype-heavy copy
+- generic filler text
+
+# Quick actions behavior
+Dashboard quick actions should be:
+- limited to the most relevant actions
+- clearly labeled
+- visually consistent
+- easy to tap on mobile
+
+Preferred quick actions:
+- Renew Membership
+- View Membership Card
+- Update Profile
+- View Payments
+- See Events
+- Contact Club
+
+Do not overcrowd quick actions with low-priority links.
+
+# Club updates and events behavior
+Announcements and event sections should:
+- be easy to scan
+- show title, date, and short summary
+- avoid oversized article-like layouts
+- support a clean empty state if no updates exist
+- visually fit alongside dashboard cards
+
+# Payment / dues behavior
+Payment areas should clearly surface:
+- current dues status
+- most recent paid period
+- next due date
+- manual vs automatic payment explanation where relevant
+- action to pay or view history
+
+Prefer premium summary formatting over dense billing tables unless detailed history is specifically needed.
+
+# Mobile behavior
+On mobile:
+- stack cards intentionally
+- reduce bulky padding
+- keep actions thumb-friendly
+- maintain premium spacing without wasting vertical space
+- prevent overflow in card rows or badge groups
+- ensure summary content remains readable above the fold
+
+# Desktop behavior
+On desktop:
+- use multi-column layout where it improves clarity
+- give primary cards more space than secondary ones
+- avoid overly stretched text blocks
+- preserve a premium product feel with neat alignment
+
+# Engineering behavior
+When improving a dashboard:
+- inspect the existing file first
+- preserve existing logic and business behavior
+- preserve auth, routing, payment flow, and data fetching
+- do not rewrite unrelated sections
+- do not rename functions, props, or files unless necessary
+- keep changes surgical
+- keep components reusable
+- use TypeScript-safe code
+
+# Output behavior for Cursor
+When asked to implement a dashboard improvement:
+1. identify the exact file to edit
+2. state the exact section to update
+3. provide the exact replaceable code block
+4. preserve existing functionality
+5. focus on visual and UX improvements first unless logic changes are requested
+6. keep the dashboard premium and product-like, not marketing-like
+
+# Preferred reusable dashboard sections
+When relevant, build or suggest:
+- MemberDashboardHeader
+- MembershipStatusCard
+- DuesSummaryCard
+- ClubUpdatesCard
+- UpcomingEventsCard
+- MemberBenefitsCard
+- QuickActionsCard
+- ProfileCompletionCard
+- SupportCard
+
+# Final quality bar
+A premium member dashboard should feel:
+- trustworthy
+- organized
+- modern
+- easy to scan
+- polished
+- responsive
+- useful immediately after login

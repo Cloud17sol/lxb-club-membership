@@ -1,0 +1,136 @@
+---
+description: Premium 3D membership app website rules
+globs:
+alwaysApply: true
+---
+
+# Project context
+This project is a premium membership app.
+Tech stack is React + TypeScript.
+Preserve existing architecture, naming, routes, auth flow, and working business logic.
+Do not introduce breaking rewrites.
+Make changes surgically and one file at a time unless explicitly asked otherwise.
+
+# Core design goal
+Build interfaces that feel premium, modern, polished, conversion-focused, and production-ready.
+The visual direction should feel high-end SaaS + sports/luxury UI, not generic dashboard UI.
+
+# Visual standard
+When creating or updating pages, prefer:
+- strong visual hierarchy
+- generous spacing
+- large headings
+- soft shadows
+- layered cards
+- premium gradients used sparingly
+- smooth hover states
+- subtle glassmorphism only where it improves the design
+- tasteful motion, not noisy animation
+- responsive layouts first
+- clean empty states and loading states
+- polished mobile design
+
+# 3D design direction
+When the user asks for 3D or premium visuals:
+- use subtle 3D effects, not gimmicks
+- prefer layered depth, perspective transforms, floating cards, soft glow, mesh gradients, depth shadows
+- use parallax only when lightweight and purposeful
+- do not overuse heavy WebGL or large animation libraries unless explicitly requested
+- prefer CSS transforms and lightweight motion before adding complex 3D dependencies
+- if true 3D is needed, recommend React Three Fiber only for isolated hero sections or showcase blocks
+- never let 3D effects reduce readability, accessibility, or performance
+
+# Membership app UX rules
+Prioritize features and layouts that fit a membership product:
+- member dashboard
+- membership status cards
+- payment / dues cards
+- announcements / updates
+- events
+- benefits / perks
+- profile completion
+- quick actions
+- plan comparison
+- onboarding
+- renewal prompts
+- trust-building sections
+
+# Coding behavior
+Always:
+- inspect the existing file before editing
+- preserve existing functionality
+- match the current project patterns
+- keep components reusable
+- use TypeScript-safe code
+- avoid dead code
+- avoid placeholder lorem ipsum in final UI
+- avoid renaming existing functions, props, or files unless required
+- avoid adding dependencies unless necessary
+
+# Styling behavior
+When writing UI code:
+- prefer clean semantic JSX
+- keep class names readable and grouped logically
+- optimize for mobile, tablet, and desktop
+- make grids fluid and not fixed when possible
+- ensure text wraps properly on smaller screens
+- avoid bulky layouts
+- reduce visual clutter
+- keep spacing consistent
+- ensure buttons and cards look premium
+
+# Performance rules
+- do not add heavy libraries for small visual wins
+- avoid expensive rerenders
+- lazy-load heavy sections if needed
+- optimize animation for smoothness
+- prefer transform and opacity animations
+- avoid layout shift
+- keep bundle impact in mind
+
+# Accessibility rules
+- maintain sufficient contrast
+- preserve keyboard usability
+- use proper button and heading semantics
+- do not rely on color alone for status
+- ensure motion can be reduced if needed
+
+# Output rules for Cursor
+When asked to implement something:
+1. identify the exact file to edit
+2. explain briefly what section to change
+3. provide the exact code block to replace
+4. do not rewrite unrelated parts
+5. keep the change minimal and safe
+6. if the request is mainly visual, focus on layout and styling without breaking logic
+
+# When generating new premium pages
+Use this structure when relevant:
+- hero / top summary area
+- primary KPI or membership card
+- quick actions
+- updates / announcements
+- upcoming events or dues
+- secondary content grid
+- responsive stacking for mobile
+
+# Preferred premium visual language
+Use ideas like:
+- gradient borders
+- tinted dark surfaces or bright clean surfaces depending on theme
+- elevated cards
+- icon badges
+- section dividers
+- subtle animated highlights
+- premium status pills
+- depth through shadow and layering
+
+# Avoid
+- cluttered dashboards
+- oversized text blocks
+- random colors
+- cheap-looking neon overload
+- too many competing cards
+- unnecessary carousels
+- fragile absolute positioning
+- breaking current auth, routing, or payment flow

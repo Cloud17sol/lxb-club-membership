@@ -1,0 +1,193 @@
+---
+description: Premium landing pages and homepage sections
+globs:
+  - "src/pages/**/*.{ts,tsx}"
+  - "src/components/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Purpose
+Use this rule when building or improving landing pages, homepages, marketing sections, membership sales pages, waitlists, or premium public-facing sections.
+
+# Main goal
+Create premium, modern, conversion-focused pages for a membership app.
+The result should feel polished, trustworthy, high-end, and mobile-optimized.
+
+# Design direction
+Prefer:
+- premium SaaS quality
+- elegant sports-tech feel where relevant
+- clear visual hierarchy
+- bold but tasteful headlines
+- concise supporting copy
+- strong spacing rhythm
+- premium cards and section blocks
+- subtle depth and layered layouts
+- refined hover states
+- modern CTA design
+- clean responsive stacking
+
+Avoid:
+- generic bootstrap-looking sections
+- clutter
+- walls of text
+- random gradients
+- weak CTA placement
+- overcrowded hero sections
+- too many accent colors
+- cheap-looking effects
+- bulky mobile layouts
+
+# Homepage / landing page structure
+When building a premium homepage, prefer this order when relevant:
+1. hero section
+2. social proof / trust strip
+3. key membership benefits
+4. feature or experience highlights
+5. dues / plan / package summary
+6. app preview or member dashboard preview
+7. events / updates / community section
+8. testimonials or credibility block
+9. final CTA section
+10. footer
+
+# Hero section rules
+The hero should:
+- communicate the core value in 1 strong headline
+- use a short supporting paragraph
+- include 1 primary CTA and 1 secondary CTA when useful
+- include a premium visual area such as dashboard mockup, layered cards, floating stats, or product preview
+- feel balanced on desktop and stacked cleanly on mobile
+
+Preferred hero content style:
+- headline: clear and bold
+- subtext: short and persuasive
+- CTA text: action-focused
+- supporting stat pills or trust badges: optional but polished
+
+# Membership app content priorities
+Emphasize sections such as:
+- member access
+- club benefits
+- dues visibility
+- announcements
+- events
+- premium community experience
+- easy renewals
+- member status
+- digital membership cards
+- admin/member convenience
+- trust and professionalism
+
+# Premium visual language
+Use ideas like:
+- soft gradients
+- subtle glass panels only where useful
+- elevated cards
+- premium badge pills
+- layered backgrounds
+- soft glow behind key CTA or preview area
+- tasteful icon use
+- refined section spacing
+- dark-on-light or light-on-dark contrast blocks
+- subtle 3D depth with transforms and shadows
+
+# 3D and depth behavior
+For premium homepage sections:
+- use subtle depth, not gimmicks
+- prefer floating cards, perspective tilt, layered mockups, and soft shadow depth
+- keep effects lightweight
+- use CSS transforms and motion before adding heavy libraries
+- only use React Three Fiber for a hero/showcase if explicitly requested
+- never reduce readability or slow initial load unnecessarily
+
+# Copywriting rules
+When generating section copy:
+- keep headlines concise
+- make subtext specific
+- avoid vague marketing fluff
+- avoid lorem ipsum
+- tie copy to membership value, trust, convenience, and experience
+- sound premium and confident, not exaggerated
+
+Preferred tone:
+- modern
+- credible
+- polished
+- welcoming
+- premium
+
+# CTA rules
+CTAs should be clear and intentional.
+Prefer examples like:
+- Join Now
+- Become a Member
+- View Membership Benefits
+- Renew Membership
+- Explore Member Perks
+- See Upcoming Events
+
+Do not use weak CTA text like:
+- Learn More only
+- Click Here
+- Submit
+
+# Section design rules
+For each section:
+- keep one clear purpose
+- do not mix too many ideas into one block
+- use consistent max widths
+- keep vertical spacing generous
+- ensure cards align neatly
+- make mobile layout feel intentional, not compressed
+
+# Component behavior
+When building homepage components:
+- keep them reusable
+- separate large sections into clear components if needed
+- preserve existing route and app structure
+- do not rewrite unrelated logic
+- do not add unnecessary dependencies
+
+# Responsive behavior
+On mobile:
+- stack content cleanly
+- reduce bulky padding where needed
+- keep buttons easy to tap
+- avoid horizontal overflow
+- reduce decorative clutter
+- maintain premium feel without crowding
+
+On desktop:
+- use balanced two-column hero layouts when suitable
+- allow room for preview visuals
+- avoid overly stretched text lines
+
+# If asked to improve an existing landing page
+You should:
+1. inspect the current file first
+2. preserve existing content intent unless told to rewrite it
+3. improve hierarchy, spacing, CTA placement, and visual polish
+4. make the page feel more premium without breaking functionality
+5. provide exact replaceable code blocks, not broad rewrites
+
+# Preferred reusable homepage sections
+When relevant, suggest or build:
+- HeroSection
+- TrustStrip
+- BenefitsGrid
+- MembershipPlans
+- AppPreview
+- CommunityUpdates
+- TestimonialsSection
+- FinalCTA
+- PremiumFooter
+
+# Final quality bar
+Every homepage or landing page should feel:
+- premium
+- clear
+- conversion-focused
+- mobile-ready
+- visually modern
+- production-ready
